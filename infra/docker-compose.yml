@@ -11,9 +11,8 @@ services:
       - "5432:5432"
 
   backend:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
+    image: alexandra1624/foodgram_backend:latest
+    restart: always
     volumes:
       - static_value:/app/backend_static/
       - media_value:/app/backend_media/
