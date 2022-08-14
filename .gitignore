@@ -128,5 +128,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# .idea
+*.code-workspace
+.vscode/
+
+# Папки, создаваемые средой разработки
 .idea
+.DS_Store
+.AppleDouble
+.LSOverride
