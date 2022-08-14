@@ -1,6 +1,6 @@
 # Сайт Foodgram «Продуктовый помощник». Дипломный проект учебного курса Яндекс.Практикум.
 
-![example event parameter](https://github.com/Alexandra1624/foodgram-project-react/actions/workflows/yamdb_workflow.yml/badge.svg?event=push)
+![example event parameter](https://github.com/Alexandra1624/foodgram-project-react/actions/workflows/foodgram_workflows.yml/badge.svg?event=push)
 ## _Описание_
 Написан онлайн-сервис и API для него. На этом сервисе пользователи могут публиковать рецепты, подписываться на публикации других пользователей, добавлять понравившиеся рецепты в список «Избранное», а перед походом в магазин скачивать сводный список продуктов в pdf формате, необходимых для приготовления одного или нескольких выбранных блюд.
 
