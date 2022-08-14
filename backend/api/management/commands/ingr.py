@@ -33,4 +33,4 @@ class Command(BaseCommand):
         except FileNotFoundError:
             raise CommandError(
                 'Добавьте файл ingredients.csv в директорию data'
-                )
+            )
