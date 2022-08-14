@@ -6,17 +6,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 load_dotenv()
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'gdh3a5tegr1324dytjGdhtsr')
+SECRET_KEY = os.getenv('SECRET_KEY', 'gdh3ввa5tegr177324dytjGdhtsr')
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = [
     '*',
 ]
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -46,7 +42,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'api_foodgram.urls'
 
-# TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -65,9 +60,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'api_foodgram.wsgi.application'
 
-
-# Database
-
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
@@ -78,16 +70,6 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT', '5432')
     }
 }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
-
-# Password validation
 
 AUTH_PASSWORD_VALIDATORS = [
  {

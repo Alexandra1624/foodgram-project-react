@@ -27,7 +27,7 @@ git clone https://github.com/Alexandra1624/foodgram-project-react
 
 ```
 
-2. **Создайте файл .env с переменными окружения для работы с базой данных:**
+2. **Перейдите в папку infra. Создайте файл .env с переменными окружения для работы с базой данных:**
 ```sh
 SECRET_KEY=secret_key # секретный ключ для работы settings.py
 DB_ENGINE=django.db.backends.postgresql # указываем, что работаем с postgresql
@@ -36,6 +36,32 @@ POSTGRES_USER=postgres # логин для подключения к базе д
 POSTGRES_PASSWORD=postgres # пароль для подключения к БД (установите свой)
 DB_HOST=db # название сервиса (контейнера)
 DB_PORT=5432 # порт для подключения к БД
+```
+
+3. **Запустите создание образов и развертывание контейнеров:**
+```sh
+sudo docker-compose up -d
+```
+4. **Создайте миграции:**
+```sh
+sudo docker-compose exec backend python manage.py makemigrations --no-input
+```
+5. **Примените миграции:**
+```sh
+sudo docker-compose exec backend python manage.py migrate --no-input
+```
+6. **Соберите статику:**
+```sh
+sudo docker-compose exec backend python manage.py collectstatic --no-input
+```
+7. **Создайте суперпользователя:**
+```sh
+sudo docker-compose exec backend python manage.py createsuperuser
+```
+8. **Добавьте тэги и ингридиенты в БД:**
+```sh
+sudo docker-compose exec backend python manage.py tags
+sudo docker-compose exec backend python manage.py ingr
 ```
 
 Локально сервер запущен на странице:     

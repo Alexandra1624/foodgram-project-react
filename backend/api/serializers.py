@@ -94,7 +94,7 @@ class FollowSerializer(serializers.ModelSerializer):
 
 class RecipeGetSerializer(serializers.ModelSerializer):
     image = Base64ImageField(max_length=None, use_url=True)
-    ingredients = serializers.SerializerMethodField()
+    ingredients = IngredientRecipeGetSerializer(many=True)
     author = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField()
@@ -118,11 +118,6 @@ class RecipeGetSerializer(serializers.ModelSerializer):
         if user.is_anonymous:
             return False
         return obj.cart.filter(user=user).exists()
-
-    def get_ingredients(self, obj):
-        recipe_ingredients = RecipeIngredient.objects.filter(recipe=obj)
-        return IngredientRecipeGetSerializer(recipe_ingredients,
-                                             many=True).data
 
 
 class RecipeSerializer(serializers.ModelSerializer):
