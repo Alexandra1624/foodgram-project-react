@@ -22,9 +22,7 @@ services:
       - ./.env
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: alexandra1624/foodgram_frontend:v1.0.2022
     volumes:
       - ../frontend/:/app/result_build/
 
