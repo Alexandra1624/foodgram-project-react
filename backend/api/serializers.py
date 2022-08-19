@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
-from .utils import recipe_ingredient_create
+from .views import recipe_ingredient_create
 from users.models import Subscribe
 from users.serializers import UserSerializer
 
