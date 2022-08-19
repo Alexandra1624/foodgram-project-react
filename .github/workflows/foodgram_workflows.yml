@@ -55,7 +55,6 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd infra/
             sudo docker pull alexandra1624/foodgram_backend:latest
             sudo docker pull alexandra1624/foodgram_frontend:latest
             sudo docker-compose stop

@@ -31,7 +31,7 @@ class ShoppingCardView(APIView):
             'ingredient__name',
             'ingredient__measurement_unit'
         ).annotate(
-            amount=Sum('amount')
+            amount=Sum('ingredient__amount')
         ).order_by()
         font = 'Tantular'
         pdfmetrics.registerFont(
@@ -52,7 +52,7 @@ class ShoppingCardView(APIView):
                 50,
                 from_bottom,
                 (f'{number}.  {ingredient["ingredient__name"]} - '
-                 f'{ingredient["amount"]} '
+                 f'{ingredient["ingredient__amount"]} '
                  f'{ingredient["ingredient__measurement_unit"]}')
             )
             from_bottom -= 20
