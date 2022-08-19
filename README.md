@@ -64,12 +64,16 @@ sudo docker-compose exec backend python manage.py tags
 sudo docker-compose exec backend python manage.py ingr
 ```
 
-Локально сервер запущен на странице:     
-http://localhost/             
+Cервер запущен на странице:     
+http://158.160.1.64/            
 Страница администратора:            
-http://localhost/admin          
+http://158.160.1.64/admin          
 Спецификация и эндпоинты доступны в документации:       
-http://localhost/api/docs/redoc.html
+http://158.160.1.64/api/docs/redoc.html
+
+## Параметры для входа администратора:
+Почта: ***admin@yandex.ru***          
+Пароль: ***admin***
 
 ## Автор
 
