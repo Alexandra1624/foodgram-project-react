@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from recipes.models import Favorite, Ingredient, Recipe, Shopping, Tag
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -8,7 +9,6 @@ from .filters import IngredientFilter, RecipeFilter
 from .mixins import ListRetrieveViewSet
 from .pagination import CustomPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
-from recipes.models import Favorite, Ingredient, Recipe, Shopping, Tag
 from .serializers import (IngredientSerializer, RecipeFollowSerializer,
                           RecipeGetSerializer, RecipeSerializer, TagSerializer)
 from .utils import delete, post
