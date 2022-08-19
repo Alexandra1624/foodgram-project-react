@@ -17,10 +17,10 @@ from .filters import IngredientFilter, RecipeFilter
 from .mixins import ListRetrieveViewSet
 from .pagination import CustomPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            Shopping, Tag)
 from .serializers import (IngredientSerializer, RecipeFollowSerializer,
                           RecipeGetSerializer, RecipeSerializer, TagSerializer)
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            Shopping, Tag)
 
 
 class ShoppingCardView(APIView):
