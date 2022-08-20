@@ -86,9 +86,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class ShoppingCardView(APIView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (AllowAny,)
-
     def get(self, request):
         user = request.user
         shopping_list = RecipeIngredient.objects.filter(
