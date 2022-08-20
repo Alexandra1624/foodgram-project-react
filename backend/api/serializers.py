@@ -1,12 +1,12 @@
 from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+from .utils import recipe_ingredient_create
 from users.models import Subscribe
 from users.serializers import UserSerializer
-
-from .utils import recipe_ingredient_create
 
 User = get_user_model()
 
@@ -94,7 +94,7 @@ class FollowSerializer(serializers.ModelSerializer):
 
 class RecipeGetSerializer(serializers.ModelSerializer):
     image = Base64ImageField(max_length=None, use_url=True)
-    ingredients = IngredientRecipeGetSerializer(many=True)
+    ingredients = serializers.SerializerMethodField()
     author = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField()
@@ -118,6 +118,11 @@ class RecipeGetSerializer(serializers.ModelSerializer):
         if user.is_anonymous:
             return False
         return obj.cart.filter(user=user).exists()
+
+    def get_ingredients(self, obj):
+        recipe_ingredients = RecipeIngredient.objects.filter(recipe=obj)
+        return IngredientRecipeGetSerializer(recipe_ingredients,
+                                             many=True).data
 
 
 class RecipeSerializer(serializers.ModelSerializer):
