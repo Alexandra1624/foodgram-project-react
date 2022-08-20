@@ -9,6 +9,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import status, viewsets
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -85,8 +86,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class ShoppingCardView(APIView):
-    def get(self):
-        user = self.request.user
+    authentication_classes = (TokenAuthentication,)
+
+    def get(self, request):
+        user = request.user
         shopping_list = RecipeIngredient.objects.filter(
             recipe__cart__user=user).values(
             'ingredient__name',
