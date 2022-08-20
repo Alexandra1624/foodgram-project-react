@@ -6,7 +6,7 @@ from rest_framework.validators import UniqueTogetherValidator
 from users.models import Subscribe
 from users.serializers import UserSerializer
 
-from .views import recipe_ingredient_create
+from .utils import recipe_ingredient_create
 
 User = get_user_model()
 
