@@ -85,8 +85,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class ShoppingCardView(APIView):
-    def get(self, request):
-        user = request.user
+    def get(self):
+        user = self.request.user
         shopping_list = RecipeIngredient.objects.filter(
             recipe__cart__user=user).values(
             'ingredient__name',
