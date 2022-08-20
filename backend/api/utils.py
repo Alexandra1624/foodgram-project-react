@@ -1,9 +1,8 @@
 from django.shortcuts import get_object_or_404
-
-from recipes.models import Recipe
-
 from rest_framework import status
 from rest_framework.response import Response
+
+from recipes.models import Recipe
 
 
 def post(request, pk, model, serializer):
