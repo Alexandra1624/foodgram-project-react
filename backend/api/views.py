@@ -81,12 +81,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
             .annotate(quantity=Sum("amount"))
         )
         content = [
-            f'{item["ingredient__name"]} ({item["ingredient__measurement_unit"]})'
-            f'- {item["quantity"]}\n'
+            f'{item["ingredient__name"]}'
+            f' {item["ingredient__measurement_unit"]}'
+            f' - {item["quantity"]}\n'
             for item in shopping_cart
         ]
         response = HttpResponse(content, content_type="text/plain")
         response["Content-Disposition"] = (
-                f'attachment; filename = "shopping_cart"'
+                'attachment; filename="shopping_list.txt"'
         )
         return response
