@@ -92,6 +92,15 @@ class FollowSerializer(serializers.ModelSerializer):
         return RecipeFollowSerializer(queryset, many=True).data
 
 
+class AddIngredientSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField()
+
+    class Meta:
+        model = RecipeIngredient
+        fields = ('id', 'amount')
+
+
 class RecipeGetSerializer(serializers.ModelSerializer):
     image = Base64ImageField(max_length=None, use_url=True)
     ingredients = serializers.SerializerMethodField()
@@ -126,8 +135,8 @@ class RecipeGetSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    ingredients = IngredientRecipeGetSerializer(
-        source="ingredients_all", many=True
+    ingredients = AddIngredientSerializer(
+        source="ingredients", many=True
     )
     author = UserSerializer(read_only=True)
     tags = serializers.PrimaryKeyRelatedField(
@@ -144,19 +153,33 @@ class RecipeSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'author', 'tags')
 
     def validate(self, data):
-        ingredients = data["ingredients_all"]
-        if not ingredients:
-            raise serializers.ValidationError("Нет ингредиентов")
-        ingredients_ids = [
-            item_ingr["ingredient"] for item_ingr in ingredients
-        ]
-        if len(ingredients_ids) != len(set(ingredients_ids)):
-            raise serializers.ValidationError("Ингредиенты овторяются!!!")
-        tags = data["tags"]
-        if len(tags) != len(set(tags)):
-            raise serializers.ValidationError("Теги повторяются!!!")
+        ingredients = data['ingredients']
+        ingredients_list = []
+        for ingredient in ingredients:
+            ingredient_id = ingredient['id']
+            if ingredient_id in ingredients_list:
+                raise serializers.ValidationError({
+                    'ingredients': 'Ингредиенты должны быть уникальными!'
+                })
+            ingredients_list.append(ingredient_id)
+            amount = ingredient['amount']
+            if int(amount) <= 0:
+                raise serializers.ValidationError({
+                    'amount': 'Количество ингредиента должно быть больше нуля!'
+                })
+
+        tags = data['tags']
         if not tags:
-            raise serializers.ValidationError("Нет тегов")
+            raise serializers.ValidationError({
+                'tags': 'Нужно выбрать хотя бы один тэг!'
+            })
+        tags_list = []
+        for tag in tags:
+            if tag in tags_list:
+                raise serializers.ValidationError({
+                    'tags': 'Тэги должны быть уникальными!'
+                })
+            tags_list.append(tag)
         return data
 
     def create(self, validated_data):
