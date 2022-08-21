@@ -78,14 +78,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticatedOrReadOnly],
     )
     def download_shopping_cart(self, request):
-        user = request.user
-        shopping_list = RecipeIngredient.objects.filter(
-            recipe__cart__user=user).values(
-            'ingredient__name',
-            'ingredient__measurement_unit'
-        ).annotate(
-            amount_total=Sum('amount')
-        ).order_by()
+        shopping_list = (
+            request.user.shopping_cart.recipe.
+            values(
+                'ingredient__name',
+                'ingredient__measurement_unit'
+            ).annotate(
+                amount_total=Sum('amount')
+            ).order_by())
         font = 'Tantular'
         pdfmetrics.registerFont(
             TTFont('Tantular', 'Tantular.ttf', 'UTF-8')
