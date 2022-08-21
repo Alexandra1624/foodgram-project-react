@@ -187,7 +187,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def to_representation(self, instance):
-        """меняем формат списка айди тегов на список словарей со всеми данными тегов"""
         rep = super().to_representation(instance)
         tags_set = Tag.objects.filter(id__in=rep["tags"])
         rep["tags"] = TagSerializer(tags_set, many=True).data
