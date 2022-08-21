@@ -147,7 +147,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         ingredients = data["ingredients_all"]
         if not ingredients:
             raise serializers.ValidationError("Нет ингредиентов")
-        ingredients_ids = [item_ingr["ingredient"] for item_ingr in ingredients]
+        ingredients_ids = [
+            item_ingr["ingredient"] for item_ingr in ingredients
+        ]
         if len(ingredients_ids) != len(set(ingredients_ids)):
             raise serializers.ValidationError("Ингредиенты овторяются!!!")
         tags = data["tags"]
