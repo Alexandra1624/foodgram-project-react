@@ -72,11 +72,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return post(request, pk, Shopping, RecipeFollowSerializer)
         return delete(request, pk, Shopping)
 
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=(IsAuthenticated,))
+    def download_shopping_cart(self, request):
+        """Качаем список с ингредиентами."""
 
-class ShoppingCardView(views.APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request):
         user = request.user
         shopping_list = RecipeIngredient.objects.filter(
             recipe__cart__user=user).values(
