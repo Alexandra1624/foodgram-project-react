@@ -1,14 +1,17 @@
+from django.db.models import Sum
+from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
 from .filters import IngredientFilter, RecipeFilter
 from .mixins import ListRetrieveViewSet
 from .pagination import CustomPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
-from recipes.models import Favorite, Ingredient, Recipe, Shopping, Tag
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            Shopping, Tag)
 from .serializers import (IngredientSerializer, RecipeFollowSerializer,
                           RecipeGetSerializer, RecipeSerializer, TagSerializer)
 from .utils import delete, post
@@ -63,3 +66,27 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == 'POST':
             return post(request, pk, Shopping, RecipeFollowSerializer)
         return delete(request, pk, Shopping)
+
+    @action(
+        methods=["get"],
+        detail=False,
+        permission_classes=[IsAuthenticatedOrReadOnly],
+    )
+    def download_shopping_cart(self, request):
+        shopping_cart = (
+            RecipeIngredient.objects.filter(
+                recipe__shopping_following_recipe__user=request.user
+            )
+            .values("ingredient__name", "ingredient__measurement_unit")
+            .annotate(quantity=Sum("amount"))
+        )
+        content = [
+            f'{item["ingredient__name"]} ({item["ingredient__measurement_unit"]})'
+            f'- {item["quantity"]}\n'
+            for item in shopping_cart
+        ]
+        response = HttpResponse(content, content_type="text/plain")
+        response["Content-Disposition"] = (
+                f'attachment; filename = "shopping_cart"'
+        )
+        return response
