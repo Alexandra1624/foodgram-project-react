@@ -1,6 +1,11 @@
+import io
+
 from django.db.models import Sum
-from django.http import HttpResponse
+from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
@@ -73,21 +78,44 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticatedOrReadOnly],
     )
     def download_shopping_cart(self, request):
-        shopping_cart = (
-            RecipeIngredient.objects.filter(
-                recipe__shopping_following_recipe__user=request.user
-            )
-            .values("ingredient__name", "ingredient__measurement_unit")
-            .annotate(quantity=Sum("amount"))
+        user = request.user
+        shopping_list = RecipeIngredient.objects.filter(
+            recipe__cart__user=user).values(
+            'ingredient__name',
+            'ingredient__measurement_unit'
+        ).annotate(
+            amount_total=Sum('amount')
+        ).order_by()
+        font = 'Tantular'
+        pdfmetrics.registerFont(
+            TTFont('Tantular', 'Tantular.ttf', 'UTF-8')
         )
-        content = [
-            f'{item["ingredient__name"]}'
-            f' {item["ingredient__measurement_unit"]}'
-            f' - {item["quantity"]}\n'
-            for item in shopping_cart
-        ]
-        response = HttpResponse(content, content_type="text/plain")
-        response[
-            "Content-Disposition"
-        ] = 'attachment; filename="shopping_list.txt"'
-        return response
+        buffer = io.BytesIO()
+        pdf_file = canvas.Canvas(buffer)
+        pdf_file.setFont(font, 24)
+        pdf_file.drawString(
+            150,
+            800,
+            'Список покупок:'
+        )
+        pdf_file.setFont(font, 14)
+        from_bottom = 750
+        for number, ingredient in enumerate(shopping_list, start=1):
+            pdf_file.drawString(
+                50,
+                from_bottom,
+                (f'{number}.  {ingredient["ingredient__name"]} - '
+                 f'{ingredient["amount_total"]} '
+                 f'{ingredient["ingredient__measurement_unit"]}')
+            )
+            from_bottom -= 20
+            if from_bottom <= 50:
+                from_bottom = 800
+                pdf_file.showPage()
+                pdf_file.setFont(font, 14)
+        pdf_file.showPage()
+        pdf_file.save()
+        buffer.seek(0)
+        return FileResponse(
+            buffer, as_attachment=True, filename='shopping_list.pdf'
+        )
