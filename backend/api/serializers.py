@@ -179,7 +179,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         self.fields.pop('ingredientrecipeamount_set')
         self.fields.pop('tags')
         representation = super().to_representation(instance)
-        representation['ingredientrecipeamount_set'] = IngredientRecipeGetSerializer(
+        representation[
+            'ingredientrecipeamount_set'
+        ] = IngredientRecipeGetSerializer(
             RecipeIngredient.objects.filter(recipe=instance), many=True
         ).data
         representation['tags'] = TagSerializer(
