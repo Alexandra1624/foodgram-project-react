@@ -146,7 +146,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     def validate(self, data):
         ingredients = data["ingredients"]
         ingredients_list = [
-            ingredient["ingredient"] for ingredient in ingredients
+            ingredient["id"] for ingredient in ingredients
         ]
         if len(ingredients_list) != len(set(ingredients_list)):
             raise serializers.ValidationError(
