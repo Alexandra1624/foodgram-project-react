@@ -18,7 +18,7 @@ class ShoppingCardView(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request):
-        user = self.request
+        user = request.user
         shopping_list = RecipeIngredient.objects.filter(
             recipe__cart__user=user).values(
             'ingredient__name',
