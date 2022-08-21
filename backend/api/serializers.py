@@ -142,12 +142,15 @@ class RecipeSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'author', 'tags')
 
     def validate(self, data):
-        ingredients = self.initial_data.get('ingredients')
-        ingredients_list = [ingredient['id'] for ingredient in ingredients]
-        if len(ingredients_list) != len(set(ingredients_list)):
-            raise serializers.ValidationError(
-                'Проверьте, какой-то ингредиент был выбран более 1 раза'
-            )
+        ingredients = data["ingredients"]
+        unique_set = set()
+        for ingredient_data in ingredients:
+            current_ingredient = ingredient_data["id"]
+            if current_ingredient in unique_set:
+                raise serializers.ValidationError(
+                    'Проверьте, какой-то ингредиент был выбран более 1 раза'
+                )
+            unique_set.add(current_ingredient)
         return data
 
     def create(self, validated_data):
