@@ -126,9 +126,7 @@ class RecipeGetSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    ingredients = IngredientRecipeSerializer(
-        many=True, source="ingredientrecipeamount_set",
-    )
+    ingredients = IngredientRecipeSerializer(many=True)
     author = UserSerializer(read_only=True)
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
@@ -144,10 +142,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'author', 'tags')
 
     def validate(self, data):
-        ingredients = data["ingredients"]
-        ingredients_list = [
-            ingredient["id"] for ingredient in ingredients
-        ]
+        ingredients = self.initial_data.get('ingredients')
+        ingredients_list = [ingredient['id'] for ingredient in ingredients]
         if len(ingredients_list) != len(set(ingredients_list)):
             raise serializers.ValidationError(
                 'Проверьте, какой-то ингредиент был выбран более 1 раза'
@@ -179,9 +175,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         self.fields.pop('ingredients')
         self.fields.pop('tags')
         representation = super().to_representation(instance)
-        representation[
-            'ingredients'
-        ] = IngredientRecipeGetSerializer(
+        representation['ingredients'] = IngredientRecipeGetSerializer(
             RecipeIngredient.objects.filter(recipe=instance), many=True
         ).data
         representation['tags'] = TagSerializer(
