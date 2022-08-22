@@ -149,12 +149,18 @@ class RecipeSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
-        ingredients = data["ingredients_all"]
-        ingredients_list = [ingredient['id'] for ingredient in ingredients]
-        if len(ingredients_list) != len(set(ingredients_list)):
-            raise serializers.ValidationError(
-                'Проверьте, какой-то ингредиент был выбран более 1 раза'
-            )
+        ingredients_data = data['ingredients']
+        ingredients_set = set()
+        for ingredient in ingredients_data:
+            if ingredient['amount'] <= 0:
+                raise serializers.ValidationError(
+                    'Вес ингредиента должен быть больше 0'
+                )
+            if ingredient['id'] in ingredients_set:
+                raise serializers.ValidationError(
+                    'Ингредиент в рецепте не должен повторяться.'
+                )
+            ingredients_set.add(ingredient['id'])
         return data
 
     def create(self, validated_data):
