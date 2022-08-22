@@ -5,7 +5,6 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
-from .utils import recipe_ingredient_create
 from users.models import Subscribe
 from users.serializers import UserSerializer
 
@@ -202,8 +201,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         return instance
 
     def to_representation(self, instance):
-        data = RecipeGetSerializer(
+        representation = RecipeGetSerializer(
             instance,
             context={'request': self.context.get('request')}
         ).data
-        return data
+        return representation
