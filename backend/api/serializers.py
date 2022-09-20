@@ -147,7 +147,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         ingredients = data["ingredientrecipeamount_set"]
         if not ingredients:
             raise serializers.ValidationError("Нет ингредиентов")
-        ingredients_ids = [item_ingr["ingredient"] for item_ingr in ingredients]
+        ingredients_ids = [
+            item_ingr["ingredient"] for item_ingr in ingredients
+        ]
         if len(ingredients_ids) != len(set(ingredients_ids)):
             raise serializers.ValidationError("Ингредиенты овторяются!!!")
         tags = data["tags"]
@@ -194,7 +196,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         self.fields.pop('ingredientrecipeamount_set')
         self.fields.pop('tags')
         representation = super().to_representation(instance)
-        representation['ingredientrecipeamount_set'] = IngredientRecipeGetSerializer(
+        representation[
+            'ingredientrecipeamount_set'
+        ] = IngredientRecipeGetSerializer(
             RecipeIngredient.objects.filter(recipe=instance), many=True
         ).data
         representation['tags'] = TagSerializer(
