@@ -1,10 +1,10 @@
 from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
 from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
-from .utils import recipe_ingredient_create
 from users.models import Subscribe
 from users.serializers import UserSerializer
 
@@ -126,78 +126,82 @@ class RecipeGetSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    ingredients = IngredientRecipeSerializer(
-        source="ingredientrecipeamount_set", many=True
-    )
     author = UserSerializer(read_only=True)
+    image = Base64ImageField(max_length=None, use_url=True)
+    ingredients = IngredientRecipeSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True,
     )
-    image = Base64ImageField(max_length=None, use_url=True)
     cooking_time = serializers.IntegerField(min_value=1)
 
     class Meta:
         model = Recipe
-        fields = ('id', 'author', 'name', 'text', 'ingredients', 'tags',
-                  'cooking_time', 'image')
+        fields = (
+            'id',
+            'author',
+            'name',
+            'text',
+            'image',
+            'ingredients',
+            'tags',
+            'cooking_time',
+        )
         read_only_fields = ('id', 'author', 'tags')
 
-    def validate(self, data):
-        ingredients = data["ingredientrecipeamount_set"]
-        if not ingredients:
-            raise serializers.ValidationError("Нет ингредиентов")
-        ingredients_ids = [item_ingr["ingredient"] for item_ingr in ingredients]
-        if len(ingredients_ids) != len(set(ingredients_ids)):
-            raise serializers.ValidationError("Ингредиенты овторяются!!!")
-        tags = data["tags"]
-        if len(tags) != len(set(tags)):
-            raise serializers.ValidationError("Теги повторяются!!!")
-        if not tags:
-            raise serializers.ValidationError("Нет тегов")
-        return data
-
-    def create_ingredients(self, ingredients_data, recipe):
-        new_ingredients = [
-            RecipeIngredient(
-                recipe=recipe,
-                ingredient=ingredient_data["ingredient"],
-                amount=ingredient_data["amount"],
-            )
-            for ingredient_data in ingredients_data
-        ]
-        RecipeIngredient.objects.bulk_create(new_ingredients)
-        return recipe
-
     def create(self, validated_data):
-        ingredients_data = validated_data.pop('ingredientrecipeamount_set')
+        ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
-        recipe.tags.set(tags_data)
-        recipe_ingredient_create(ingredients_data, RecipeIngredient, recipe)
+        for ingredient in ingredients_data:
+            amount = ingredient['amount']
+            id = ingredient['id']
+            RecipeIngredient.objects.create(
+                ingredient=get_object_or_404(Ingredient, id=id),
+                recipe=recipe, amount=amount
+            )
+        for tag in tags_data:
+            recipe.tags.add(tag)
         return recipe
 
+    def validate(self, data):
+        ingredients_data = data['ingredients']
+        ingredients_set = set()
+        for ingredient in ingredients_data:
+            if ingredient['amount'] <= 0:
+                raise serializers.ValidationError(
+                    'Вес ингредиента должен быть больше 0'
+                )
+            if ingredient['id'] in ingredients_set:
+                raise serializers.ValidationError(
+                    'Ингредиент в рецепте не должен повторяться.'
+                )
+            ingredients_set.add(ingredient['id'])
+        return data
+
     def update(self, instance, validated_data):
-        if 'tags' in self.validated_data:
-            tags_data = validated_data.pop('tags')
-            instance.tags.set(tags_data)
-        if 'ingredients' in self.validated_data:
-            ingredients_data = validated_data.pop('ingredientrecipeamount_set')
-            amount_set = RecipeIngredient.objects.filter(
-                recipe__id=instance.id)
-            amount_set.delete()
-            recipe_ingredient_create(ingredients_data, RecipeIngredient,
-                                     instance)
-        return super().update(instance, validated_data)
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tags')
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.image = validated_data.get('image', instance.image)
+        instance.cooking_time = validated_data.get(
+            'cooking_time', instance.cooking_time
+        )
+        RecipeIngredient.objects.filter(recipe=instance).delete()
+        for ingredient in ingredients_data:
+            amount = ingredient['amount']
+            id = ingredient['id']
+            RecipeIngredient.objects.create(
+                ingredient=get_object_or_404(Ingredient, id=id),
+                recipe=instance, amount=amount
+            )
+        instance.save()
+        instance.tags.set(tags_data)
+        return instance
 
     def to_representation(self, instance):
-        self.fields.pop('ingredientrecipeamount_set')
-        self.fields.pop('tags')
-        representation = super().to_representation(instance)
-        representation['ingredientrecipeamount_set'] = IngredientRecipeGetSerializer(
-            RecipeIngredient.objects.filter(recipe=instance), many=True
+        return RecipeGetSerializer(
+            instance,
+            context={'request': self.context.get('request')}
         ).data
-        representation['tags'] = TagSerializer(
-            instance.tags, many=True
-        ).data
-        return representation
