@@ -136,13 +136,3 @@ dmypy.json
 .DS_Store
 .AppleDouble
 .LSOverride
-
-serializers_copy.py
-utils_del.py
-views_copy.py
-utils_del_copy.py
-views_new1.py
-utils_v1.py
-views_.py
-serializers_work.py
-serializers rev2.py
