@@ -65,11 +65,11 @@ sudo docker-compose exec backend python manage.py ingr
 ```
 
 Cервер запущен на странице:     
-http://158.160.1.64/            
+http://158.160.3.118/            
 Страница администратора:            
-http://158.160.1.64/admin          
+http://158.160.3.118/admin          
 Спецификация и эндпоинты доступны в документации:       
-http://158.160.1.64/api/docs/redoc.html
+http://158.160.3.118/api/docs/redoc.html
 
 ## Параметры для входа администратора:
 Почта: ***admin@yandex.ru***          
